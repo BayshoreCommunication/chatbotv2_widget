@@ -1,7 +1,7 @@
 import { Send } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
-export default function MessageInput({ onSend, disabled }) {
+export default function MessageInput({ onSend, disabled, placeholder }) {
   const [input, setInput] = useState('');
   const textareaRef = useRef(null);
 
@@ -35,7 +35,7 @@ export default function MessageInput({ onSend, disabled }) {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Type your message..."
+          placeholder={placeholder || "Type your message..."}
           disabled={disabled}
           rows={1}
           className="max-h-[120px] w-full resize-none overflow-y-auto bg-transparent py-3 pl-4 pr-12 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none disabled:opacity-50"
