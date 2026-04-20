@@ -34,7 +34,7 @@ export const useChatApi = (apiKey, visitorId, sessionId) => {
           );
         }
 
-        return data.answer || "No response received.";
+        return data.answer ?? "";
       } catch (err) {
         setError(err.message);
         return null;

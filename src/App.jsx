@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import tinycolor from 'tinycolor2';
 import ChatHeader from './components/ChatHeader';
 import MessageInput from './components/MessageInput';
@@ -6,6 +6,7 @@ import MessageList from './components/MessageList';
 import { useChatApi } from './hooks/useChatApi';
 import { useWidgetSettings } from './hooks/useWidgetSettingsApi';
 import { useSessionHistory } from './hooks/useSessionHistory';
+import { useWidgetWebSocket } from './hooks/useWidgetWebSocket';
 import { getSessionId, getVisitorId, resetSessionId } from './utils/session';
 import LandingPage from './components/LandingPage';
 
@@ -29,6 +30,22 @@ function App() {
 
   // Custom Hook
   const { sendMessage, isLoading, error } = useChatApi(rawApiKey, visitorId, sessionId);
+
+  const [isTakeover, setIsTakeover] = useState(false);
+  const [isWaitingForOwner, setIsWaitingForOwner] = useState(false);
+
+  // WebSocket — receive owner replies in real-time
+  const handleOwnerReply = useCallback((content) => {
+    setIsWaitingForOwner(false);
+    setMessages(prev => [...prev, { role: 'assistant', text: content }]);
+  }, []);
+
+  useWidgetWebSocket({
+    apiKey: hasApiKey ? rawApiKey : null,
+    sessionId,
+    onOwnerReply: handleOwnerReply,
+    onTakeoverChange: setIsTakeover,
+  });
 
   // Apply theme + notify parent launcher once config is ready
   useEffect(() => {
@@ -90,10 +107,12 @@ function App() {
     setMessages(prev => [...prev, userMsg]);
 
     const responseText = await sendMessage(text);
-    setMessages(prev => [
-      ...prev,
-      { role: 'assistant', text: responseText || "Sorry, something went wrong." },
-    ]);
+    if (responseText) {
+      setMessages(prev => [...prev, { role: 'assistant', text: responseText }]);
+    } else if (responseText === "") {
+      // Takeover active — keep typing animation until owner replies via WebSocket
+      setIsWaitingForOwner(true);
+    }
   };
 
   const handleRefresh = () => {
@@ -128,9 +147,9 @@ function App() {
         </div>
       )}
 
-      <MessageList 
-        messages={messages} 
-        isTyping={isLoading} 
+      <MessageList
+        messages={messages}
+        isTyping={isLoading || isWaitingForOwner}
         welcomeVideo={config.content?.welcome_video}
         videoAutoplay={config.content?.welcome_video_autoplay}
       />
