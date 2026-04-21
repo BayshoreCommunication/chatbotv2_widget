@@ -74,31 +74,29 @@ function App() {
     onTakeoverChange: handleTakeoverChange,
   });
 
-  // Apply theme + notify parent launcher once config is ready
+  // Apply theme (font + colors) as soon as config is ready — don't wait for history
   useEffect(() => {
-    if (!hasApiKey || configLoading || historyLoading) return;
+    if (!hasApiKey || configLoading) return;
 
     const primaryColor = config.theme?.primary_color || '#2563eb';
     const secondaryColor = tinycolor(primaryColor).darken(10).toString();
     const fontName = config.theme?.font_family || 'Inter';
-    const fontStack = `${fontName}, system-ui, -apple-system, sans-serif`;
+    const fontStack = `'${fontName}', system-ui, -apple-system, sans-serif`;
 
     document.documentElement.style.setProperty('--primary-color', primaryColor);
     document.documentElement.style.setProperty('--secondary-color', secondaryColor);
     document.documentElement.style.setProperty('--font-family', fontStack);
+    document.body.style.fontFamily = fontStack;
 
     if (fontName !== 'system-ui' && fontName !== 'sans-serif') {
-      const link = document.createElement('link');
-      link.href = `https://fonts.googleapis.com/css2?family=${fontName.replace(/ /g, '+')}:wght@400;500;600&display=swap`;
-      link.rel = 'stylesheet';
-      document.head.appendChild(link);
-    }
-
-    // Restore previous messages or show welcome message for first visit
-    if (historyMessages.length > 0) {
-      setMessages(historyMessages);
-    } else if (config.behavior?.show_welcome_message) {
-      setMessages([{ role: 'assistant', text: config.content?.welcome_message }]);
+      const linkId = `gfont-${fontName.replace(/ /g, '-')}`;
+      if (!document.getElementById(linkId)) {
+        const link = document.createElement('link');
+        link.id = linkId;
+        link.rel = 'stylesheet';
+        link.href = `https://fonts.googleapis.com/css2?family=${fontName.replace(/ /g, '+')}:wght@400;500;600&display=swap`;
+        document.head.appendChild(link);
+      }
     }
 
     // Notify parent (launcher icon + color)
@@ -120,6 +118,17 @@ function App() {
       setTimeout(() => {
         window.parent.postMessage('openChatbot', '*');
       }, config.behavior?.open_delay || 2000);
+    }
+  }, [config, configLoading, hasApiKey]);
+
+  // Restore messages once both config + history are ready
+  useEffect(() => {
+    if (!hasApiKey || configLoading || historyLoading) return;
+
+    if (historyMessages.length > 0) {
+      setMessages(historyMessages);
+    } else if (config.behavior?.show_welcome_message) {
+      setMessages([{ role: 'assistant', text: config.content?.welcome_message }]);
     }
   }, [config, configLoading, historyLoading, historyMessages, hasApiKey]);
 
@@ -163,8 +172,12 @@ function App() {
     window.parent.postMessage('closeChatbot', '*');
   };
 
+  const activeFontStack = (!configLoading && config.theme?.font_family)
+    ? `'${config.theme.font_family}', system-ui, -apple-system, sans-serif`
+    : undefined;
+
   return (
-    <div className="flex h-screen flex-col bg-white font-sans text-gray-900">
+    <div className="flex h-screen flex-col bg-white text-gray-900" style={activeFontStack ? { fontFamily: activeFontStack } : undefined}>
       <ChatHeader
         title={config.bot_name}
         logo={config.launcher?.brand_image_url}

@@ -58,7 +58,7 @@ export default function ChatHeader({ title, logo, onRefresh, onClose, messages }
         </div>
         <div>
           <h2 className="text-sm font-bold leading-tight">{title || 'AI Assistant'}</h2>
-          <p className="text-xs text-white/70">Online & Ready</p>
+          <p className="text-xs text-white/70">Online</p>
         </div>
       </div>
 
