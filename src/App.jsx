@@ -33,6 +33,8 @@ function App() {
 
   const [isTakeover, setIsTakeover] = useState(false);
   const [isWaitingForOwner, setIsWaitingForOwner] = useState(false);
+  const isTakeoverRef = useRef(isTakeover);
+  useEffect(() => { isTakeoverRef.current = isTakeover; }, [isTakeover]);
 
   // WebSocket — receive owner replies in real-time
   const handleOwnerReply = useCallback((content) => {
@@ -40,11 +42,16 @@ function App() {
     setMessages(prev => [...prev, { role: 'assistant', text: content }]);
   }, []);
 
+  const handleTakeoverChange = useCallback((active) => {
+    setIsTakeover(active);
+    if (!active) setIsWaitingForOwner(false);
+  }, []);
+
   useWidgetWebSocket({
     apiKey: hasApiKey ? rawApiKey : null,
     sessionId,
     onOwnerReply: handleOwnerReply,
-    onTakeoverChange: setIsTakeover,
+    onTakeoverChange: handleTakeoverChange,
   });
 
   // Apply theme + notify parent launcher once config is ready
@@ -108,9 +115,11 @@ function App() {
 
     const responseText = await sendMessage(text);
     if (responseText) {
+      setIsWaitingForOwner(false);
       setMessages(prev => [...prev, { role: 'assistant', text: responseText }]);
-    } else if (responseText === "") {
-      // Takeover active — keep typing animation until owner replies via WebSocket
+    } else if (responseText === "" || (responseText === null && isTakeoverRef.current)) {
+      // Empty = takeover active; null + takeover = API error during takeover
+      // Keep animation until owner replies via WebSocket
       setIsWaitingForOwner(true);
     }
   };
@@ -153,7 +162,7 @@ function App() {
         welcomeVideo={config.content?.welcome_video}
         videoAutoplay={config.content?.welcome_video_autoplay}
       />
-      <MessageInput onSend={handleSend} disabled={isLoading} placeholder={config.content?.input_placeholder} />
+      <MessageInput onSend={handleSend} disabled={isLoading || isWaitingForOwner} placeholder={config.content?.input_placeholder} />
     </div>
   );
 }
