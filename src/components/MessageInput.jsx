@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 export default function MessageInput({ onSend, disabled, placeholder }) {
   const [input, setInput] = useState('');
   const textareaRef = useRef(null);
+  const wasDisabledRef = useRef(disabled);
 
   // Auto-resize textarea
   useEffect(() => {
@@ -12,6 +13,15 @@ export default function MessageInput({ onSend, disabled, placeholder }) {
       textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 120)}px`;
     }
   }, [input]);
+
+  // Re-focus the input once it becomes enabled again (e.g. right after the AI replies)
+  // so the user can keep typing without clicking back into the field.
+  useEffect(() => {
+    if (wasDisabledRef.current && !disabled) {
+      textareaRef.current?.focus();
+    }
+    wasDisabledRef.current = disabled;
+  }, [disabled]);
 
   const handleSubmit = (e) => {
     e?.preventDefault();
