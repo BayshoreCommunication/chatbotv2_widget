@@ -113,7 +113,7 @@ function App() {
       }
     }
 
-    // Notify parent (launcher icon + color)
+    // Notify parent (launcher icon + color + on-page position)
     const sendConfigToParent = () => {
       window.parent.postMessage(
         {
@@ -121,6 +121,7 @@ function App() {
           config: {
             primaryColor,
             logo: config.launcher?.brand_image_url,
+            position: config.launcher?.position,
           },
         },
         "*",

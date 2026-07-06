@@ -317,13 +317,20 @@
     
     // Handle Config Update from React App
     if (event.data && event.data.type === 'CONFIG_UPDATED') {
-      const { logo, primaryColor } = event.data.config;
+      const { logo, primaryColor, position } = event.data.config;
       console.log("📥 Widget Loader: Received CONFIG_UPDATED", event.data.config);
-      
+
+      // Update on-page position (backend/admin setting overrides the
+      // data-position attribute the embed script was loaded with).
+      if (position && position !== widgetConfig.position) {
+        widgetConfig.position = position;
+        container.className = `chatbot-widget-container ${position}`;
+      }
+
       // Update Toggle Button Color
       if (primaryColor) {
         // We use !important to ensure it overrides any specific styles
-        toggleBtn.style.setProperty('background-color', primaryColor, 'important'); 
+        toggleBtn.style.setProperty('background-color', primaryColor, 'important');
       }
 
       // Update Toggle Button Icon if Logo provided
