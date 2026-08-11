@@ -16,7 +16,7 @@ export default function LandingPage() {
           <div className="inline-flex p-3 bg-white/10 rounded-full mb-4 ring-1 ring-white/20">
             <Shield className="w-8 h-8" />
           </div>
-          <h1 className="text-3xl font-bold mb-2">Bayshore Chatbot Widget</h1>
+          <h1 className="text-3xl font-bold mb-2">GoConverto Chatbot Widget</h1>
           <p className="opacity-90">Ready to be embedded on your website.</p>
         </div>
 
@@ -68,9 +68,6 @@ export default function LandingPage() {
         </div>
       </div>
       
-      <p className="mt-8 text-center text-sm text-gray-400">
-        Powered by Bayshore Communication AI
-      </p>
     </div>
   );
 }

@@ -60,9 +60,6 @@ export default function MessageInput({ onSend, disabled, placeholder }) {
           <Send className="h-4 w-4" />
         </button>
       </div>
-      <div className="mt-2 text-center text-[10px] text-gray-400">
-        Powered by BayAI
-      </div>
     </form>
   );
 }

@@ -1,8 +1,8 @@
 {
-  "bot_name": "BayAI Assistant",
-  "company_name": "Bayshore Communication",
+  "bot_name": "Go Converto",
+  "company_name": "GoConverto",
   "theme": {
-    "primary_color": "#807045",
+    "primary_color": "#474747",
     "font_family": "Inter"
   },
   "behavior": {
@@ -11,7 +11,7 @@
     "show_welcome_message": true
   },
   "content": {
-    "welcome_message": "Hello! 👋 Welcome to Bayshore Communication. How can I assist you today?",
+    "welcome_message": "Hello! 👋 Welcome to GoConverto. How can I assist you today?",
     "welcome_video": "https://www.youtube.com/embed/dQw4w9WgXcQ",
     "welcome_video_autoplay": true,
     "input_placeholder": "Type your question here..."

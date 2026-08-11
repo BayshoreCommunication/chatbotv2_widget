@@ -103,4 +103,4 @@ The widget automatically detects mobile devices (screen width < 480px) and adjus
 *   Higher z-index to overlay navbars.
 
 ---
-Powered by **Bayshore Communication**
+Powered by **GoConverto**

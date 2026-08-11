@@ -282,7 +282,7 @@
   const bubble = document.createElement("div");
   bubble.className = "chatbot-bubble";
   // Updated text with line break logic handled by CSS max-width
-  bubble.innerHTML = `<span class="typing-text">Hello! 👋 Welcome to Bayshore Communication. How can I assist you today?</span>`;
+  bubble.innerHTML = `<span class="typing-text">Hello! 👋 Welcome to GoConverto. How can I assist you today?</span>`;
   
   // Logic to show bubble
   setTimeout(() => {
