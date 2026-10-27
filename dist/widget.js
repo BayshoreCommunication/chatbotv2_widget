@@ -281,21 +281,37 @@
   // Create Bubble Element
   const bubble = document.createElement("div");
   bubble.className = "chatbot-bubble";
-  // Updated text with line break logic handled by CSS max-width
-  bubble.innerHTML = `<span class="typing-text">Hello! 👋 Welcome to Bayshore Communication. How can I assist you today?</span>`;
-  
-  // Logic to show bubble
+  const bubbleText = document.createElement("span");
+  bubbleText.className = "typing-text";
+  bubble.appendChild(bubbleText);
+
+  // The bubble's text and on/off switch come from the company's widget
+  // settings (welcome message + "show bubbles"), which the chat iframe loads
+  // and posts back as CONFIG_UPDATED. Nothing is hardcoded here — until
+  // those settings arrive the bubble simply stays hidden, rather than
+  // flashing another company's default greeting.
+  const bubbleState = { text: "", enabled: false, delayElapsed: false, shown: false };
+
+  function showBubbleIfReady() {
+    if (bubbleState.shown || isOpen) return;
+    if (!bubbleState.enabled || !bubbleState.text || !bubbleState.delayElapsed) return;
+    // Only show if the user hasn't opened the chat before
+    if (localStorage.getItem("chatbot_has_opened")) return;
+    bubbleState.shown = true;
+    bubble.classList.add("visible");
+    // Small delay for text fade-in
+    setTimeout(() => bubbleText.classList.add("visible"), 300);
+  }
+
+  function hideBubble() {
+    bubbleState.shown = false;
+    bubble.classList.remove("visible");
+    bubbleText.classList.remove("visible");
+  }
+
   setTimeout(() => {
-    // Only show if chat is closed AND user hasn't opened it before
-    const hasOpened = localStorage.getItem("chatbot_has_opened");
-    if (!isOpen && !hasOpened) {
-      bubble.classList.add("visible");
-      // Small delay for text fade-in
-      setTimeout(() => {
-        const textSpan = bubble.querySelector(".typing-text");
-        textSpan.classList.add("visible");
-      }, 300);
-    }
+    bubbleState.delayElapsed = true;
+    showBubbleIfReady();
   }, 2000); // Show after 2 seconds
 
   // Click bubble to open
@@ -316,8 +332,22 @@
     }
     
     // Handle Config Update from React App
-    if (event.data && event.data.type === 'CONFIG_UPDATED') {
-      const { logo, primaryColor, position } = event.data.config;
+    if (
+      event.data && event.data.type === 'CONFIG_UPDATED' &&
+      event.source === iframe.contentWindow
+    ) {
+      const { logo, primaryColor, position, welcomeMessage, showBubble } = event.data.config;
+
+      // Bubble text + visibility follow the company's saved settings.
+      bubbleState.enabled = showBubble !== false;
+      bubbleState.text = typeof welcomeMessage === "string" ? welcomeMessage.trim() : "";
+      bubbleText.textContent = bubbleState.text;
+      if (!bubbleState.enabled || !bubbleState.text) {
+        hideBubble();
+      } else {
+        showBubbleIfReady();
+      }
+
       console.log("📥 Widget Loader: Received CONFIG_UPDATED", event.data.config);
 
       // Update on-page position (backend/admin setting overrides the

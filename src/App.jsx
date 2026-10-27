@@ -122,6 +122,10 @@ function App() {
             primaryColor,
             logo: config.launcher?.brand_image_url,
             position: config.launcher?.position,
+            // Launcher bubble above the chat button: same welcome text the
+            // company set in the dashboard, shown only if "bubbles" is on.
+            welcomeMessage: config.content?.welcome_message,
+            showBubble: config.launcher?.show_bubbles !== false,
           },
         },
         "*",
