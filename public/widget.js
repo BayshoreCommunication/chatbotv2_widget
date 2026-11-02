@@ -23,6 +23,10 @@
       flex-direction: column;
       align-items: flex-end;
       font-family: system-ui, -apple-system, sans-serif;
+      /* The container is sized to fit the (hidden) chat window, so it would
+         otherwise block clicks on whatever page content sits behind it.
+         Only the toggle, open window and visible bubble catch clicks. */
+      pointer-events: none;
     }
     .chatbot-widget-container.bottom-left { right: auto; left: 20px; align-items: flex-start; }
     .chatbot-widget-container.top-right { bottom: auto; top: 20px; }
@@ -57,6 +61,7 @@
       color: #fff;
       border: none;
       cursor: pointer;
+      pointer-events: auto;
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
       position: relative;
       overflow: hidden;
